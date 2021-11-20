@@ -17,6 +17,7 @@ class StandingUpAgent(PostureRecognitionAgent):
 
     def standing_up(self):
         posture = self.posture
+        #print(posture)
         # YOUR CODE HERE
 
         leftBack = ['HeadBack', 'Left']
@@ -25,17 +26,18 @@ class StandingUpAgent(PostureRecognitionAgent):
         rightBelly = ['Crouch', 'Frog', 'Sit']
         standing = ['Stand', 'StandInit']
 
-        
-        if posture in leftBack:
-            self.keyframes = keyframes.leftBackToStand()
-        elif posture in rightBack:
-            self.keyframes = keyframes.rightBackToStand()
-        elif posture in leftBelly:
-            self.keyframes = keyframes.leftBellyToStand()
-        elif posture in rightBelly:
-            self.keyframes = keyframes.rightBellyToStand()
-        elif posture in standing:
-            pass
+        #if (self.stiffness_on_off_time + self.stiffness_off_cycle - self.perception.time <= 0.1):    
+        if not self.keyframes[0]:
+            if posture in leftBack:
+                self.keyframes = keyframes.leftBackToStand()
+            elif posture in rightBack:
+                self.keyframes = keyframes.rightBackToStand()
+            elif posture in leftBelly:
+                self.keyframes = keyframes.leftBellyToStand()
+            elif posture in rightBelly:
+                self.keyframes = keyframes.rightBellyToStand()
+            elif posture in standing:
+                pass
 
 
 class TestStandingUpAgent(StandingUpAgent):
@@ -60,6 +62,8 @@ class TestStandingUpAgent(StandingUpAgent):
             action.stiffness = {j: 1 for j in self.joint_names}  # turn on joints
         if time_now - self.stiffness_on_off_time > self.stiffness_on_cycle + self.stiffness_off_cycle:
             self.stiffness_on_off_time = time_now
+            self.start_time = time_now
+            self.keyframes = ([], [], [])
 
         return action
 

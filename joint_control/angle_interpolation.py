@@ -21,7 +21,7 @@
 
 
 from pid import PIDAgent
-from keyframes import hello
+from keyframes import *
 
 
 class AngleInterpolationAgent(PIDAgent):
@@ -43,31 +43,24 @@ class AngleInterpolationAgent(PIDAgent):
         target_joints = {}
         # YOUR CODE HERE
         current_time = perception.time - self.start_time
-
         names, times, keys = keyframes
-
+        
         for i, name in enumerate(names):
-            if name in self.joint_names:
-                for j in range(len(times[i])-1):
-                    if current_time<times[i][0]:
-                        p0 = self.perception.joint[name]
-                        p1 = keys[i][0][0] + keys[i][0][1][2]
-                        p2 = p1
-                        p3 = keys[i][0][0]
-                    elif (times[i][j] < current_time < times[i][len(times[i])-1]):
-                        p0 = keys[i][j][0]
-                        p1 = p0 + keys[i][j][2][2]
-                        p2 = keys[i][j + 1][0] + keys[i][j][1][2]
-                        p3 = keys[i][j + 1][0]
-                        t = (current_time - times[i][j]) / (times[i][j + 1] - times[i][j])
-            try:
-                #bezier
-                target_joints[name] = (1-t)**3 * p0 + 3*(1-t)**2 * t*p1 + 3*(1-t) * t**2 * p2 + t**3 * p3
-            except:
-                break
+            for j in range(len(times[i])-1):
+                if (times[i][j] < current_time < times[i][len(times[i])-1]):
+                    p0 = keys[i][j][0]
+                    p1 = p0 + keys[i][j][2][2]
+                    p3 = keys[i][j + 1][0]
+                    p2 = p3 + keys[i][j][1][2]
+                    t = (current_time - times[i][j]) / (times[i][j + 1] - times[i][j])
+                    target_joints[name] = (1-t)**3 * p0 + 3*(1-t)**2 * t*p1 + 3*(1-t) * t**2 * p2 + t**3 * p3
+
+        if 'LHipYawPitch' in target_joints:
+            target_joints['RHipYawPitch'] = target_joints['LHipYawPitch']
+
         return target_joints
 
 if __name__ == '__main__':
     agent = AngleInterpolationAgent()
-    agent.keyframes = hello()  # CHANGE DIFFERENT KEYFRAMES
+    agent.keyframes = leftBellyToStand()  # CHANGE DIFFERENT KEYFRAMES
     agent.run()
