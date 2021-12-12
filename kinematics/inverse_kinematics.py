@@ -46,16 +46,14 @@ class InverseKinematicsAgent(ForwardKinematicsAgent):
             Te = np.array([self.from_trans(T[-1])])
             e = target - Te
             T = np.array([self.from_trans(i) for i in T[0:len(self.chains[effector_name])]])
-            J = Te - T
-            J = J.T
+            J = (Te - T).T
             J[-1, :] = 1
-            JJT = np.dot(J, J.T)
-            d_theta = lambda_ * np.dot(np.dot(J.T, np.linalg.pinv(JJT)), e.T)
+            d_theta = lambda_ * np.dot(np.dot(J.T, np.linalg.pinv(np.dot(J, J.T))), e.T)
 
             for i, name in enumerate(self.chains[effector_name]):
                 joint_angles[name] += np.asarray(d_theta.T)[0][i]
 
-            if np.linalg.norm(d_theta) < 1e-3:
+            if np.linalg.norm(d_theta) < 1e-4:
                 break
         
         #print(joint_angles)
@@ -95,6 +93,7 @@ if __name__ == '__main__':
     agent = InverseKinematicsAgent()
     # test inverse kinematics
     T = identity(4)
+    #T[-1, 0] = -0.1
     T[-1, 1] = 0.05
     T[-1, 2] = -0.26
     agent.set_transforms('LLeg', T)
