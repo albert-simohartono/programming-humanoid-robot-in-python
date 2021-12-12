@@ -21,6 +21,7 @@ import sys
 sys.path.append(os.path.join(os.path.abspath(os.path.dirname(__file__)), '..', 'joint_control'))
 
 from numpy.matlib import matrix, identity
+from numpy import sin, cos, array, dot
 
 from angle_interpolation import AngleInterpolationAgent
 
@@ -43,7 +44,7 @@ class ForwardKinematicsAgent(AngleInterpolationAgent):
                         'LLeg': ['LHipYawPitch', 'LHipRoll', 'LHipPitch', 'LKneePitch', 'LAnklePitch', 'LAnkleRoll']
                        }
 
-        self.jointLength = {'HeadYaw': [0.00, 0.00, 126.50], 'HeadPitch': [0.00, 0.00, 0.00],
+        self.joint_length = {'HeadYaw': [0.00, 0.00, 126.50], 'HeadPitch': [0.00, 0.00, 0.00],
                             'LShoulderPitch': [0.00, 98.00, 100.00], 'LShoulderRoll': [0.00, 0.00, 0.00],
                             'LElbowYaw': [105.00, 15.00, 0.00], 'LElbowRoll': [0.00, 0.00, 0.00],
                             'RShoulderPitch': [0.00, -98.00, 100.00], 'RShoulderRoll': [0.00, 0.00, 0.00],
@@ -92,7 +93,6 @@ class ForwardKinematicsAgent(AngleInterpolationAgent):
                       ,[ 0, 0, 0, 1]])
 
         T[0:3, 3] = self.joint_length[joint_name]
-
         return T
 
     def forward_kinematics(self, joints):

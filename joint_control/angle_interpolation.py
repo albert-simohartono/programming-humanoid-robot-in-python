@@ -49,7 +49,7 @@ class AngleInterpolationAgent(PIDAgent):
             for j in range(len(times[i])-1):
                 if (times[i][j] < current_time < times[i][len(times[i])-1]):
                     p0 = keys[i][j][0]
-                    p1 = p0 + keys[i][j][2][2]
+                    p1 = p0 + keys[i][j][1][2]
                     p3 = keys[i][j + 1][0]
                     p2 = p3 + keys[i][j][1][2]
                     t = (current_time - times[i][j]) / (times[i][j + 1] - times[i][j])
@@ -62,5 +62,5 @@ class AngleInterpolationAgent(PIDAgent):
 
 if __name__ == '__main__':
     agent = AngleInterpolationAgent()
-    agent.keyframes = leftBellyToStand()  # CHANGE DIFFERENT KEYFRAMES
+    agent.keyframes = leftBackToStand()  # CHANGE DIFFERENT KEYFRAMES
     agent.run()
