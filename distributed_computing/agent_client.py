@@ -7,6 +7,13 @@
 '''
 
 import weakref
+import xmlrpc.client
+from time import sleep
+
+import sys
+sys.path.append('../joint_control')
+
+from keyframes import *
 
 class PostHandler(object):
     '''the post hander wraps function to be excuted in paralle
@@ -29,25 +36,30 @@ class ClientAgent(object):
     # YOUR CODE HERE
     def __init__(self):
         self.post = PostHandler(self)
+        self.s = xmlrpc.client.ServerProxy('http://localhost:9999')
     
     def get_angle(self, joint_name):
         '''get sensor value of given joint'''
         # YOUR CODE HERE
+        return self.s.get_angle(joint_name)
     
     def set_angle(self, joint_name, angle):
         '''set target angle of joint for PID controller
         '''
         # YOUR CODE HERE
+        return self.s.set_angle(joint_name, angle)
 
     def get_posture(self):
         '''return current posture of robot'''
         # YOUR CODE HERE
+        return self.s.get_posture()
 
     def execute_keyframes(self, keyframes):
         '''excute keyframes, note this function is blocking call,
         e.g. return until keyframes are executed
         '''
         # YOUR CODE HERE
+        return self.s.execute_keyframes(keyframes)
 
     def get_transform(self, name):
         '''get transform with given name
@@ -62,5 +74,13 @@ class ClientAgent(object):
 if __name__ == '__main__':
     agent = ClientAgent()
     # TEST CODE HERE
-
+    #print(agent.s.system.listMethods())
+    print(agent.get_angle("RKneePitch"))
+    
+    print(agent.set_angle("RKneePitch", 0.5))
+    sleep(0.8)
+    print(agent.get_angle("RKneePitch"))
+    print(agent.get_posture())
+    print(agent.execute_keyframes(leftBackToStand()))
+    print(agent.get_posture())
 
