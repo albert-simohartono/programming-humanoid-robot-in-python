@@ -24,6 +24,7 @@ from xmlrpc.server import SimpleXMLRPCRequestHandler
 import logging
 import threading
 from time import sleep
+import numpy as np
 
 # Restrict to a particular path.
 class RequestHandler(SimpleXMLRPCRequestHandler):
@@ -42,7 +43,7 @@ class ServerAgent(InverseKinematicsAgent):
         server.register_instance(self)
         server.register_introspection_functions()
         server.register_multicall_functions()
-        
+        #server.serve_forever()
         thread = threading.Thread(target=server.serve_forever)
         thread.start()
         print("Server thread started")
@@ -70,26 +71,25 @@ class ServerAgent(InverseKinematicsAgent):
         e.g. return until keyframes are executed
         '''
         # YOUR CODE HERE
-        self.start_time = self.perception.time
         self.keyframes=keyframes
-        
-        #blocking
-        max_time = (max(max(x) if isinstance(x, list) else x for x in keyframes[1])) #flatten 2d list of time(keyframes[1] = time)
-        current_time = 0.0
-        while(current_time < max_time):
-            sleep(0.1)
-            current_time = self.perception.time - self.start_time
-        return "keyframe executed in " + str("%.2f" % current_time) + "s"
+                
+        #blocking, max_time = flatten 2d list of time(keyframes[1] = time)
+        max_time = (max(max(x) if isinstance(x, list) else x for x in keyframes[1]))
+        sleep(max_time)
+        return "keyframe executed in " + str("%.2f" % max_time) + "s"
 
     def get_transform(self, name):
         '''get transform with given name
         '''
         # YOUR CODE HERE
+        return self.transforms[name].tolist()
 
     def set_transform(self, effector_name, transform):
         '''solve the inverse kinematics and control joints use the results
         '''
         # YOUR CODE HERE
+        self.set_transforms(effector_name, np.asarray(transform))
+        return "set transform " + effector_name
 
 if __name__ == '__main__':
     agent = ServerAgent()
